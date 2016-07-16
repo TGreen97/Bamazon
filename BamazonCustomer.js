@@ -12,8 +12,9 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
     if (err) throw err;
-    console.log("It is a BEAUtiful day at Bamazon!");
+    console.log("\nIt is a BEAUtiful day at Bamazon!\n");
     console.log("You are now connected with us as customer " + connection.threadId);
+    console.log("\nWhat can we help you with today?\n ");
     start();
 })
 
@@ -38,7 +39,7 @@ var buyer = function() {
     inquirer.prompt([{
         name: "purchaseItem",
         type: "input",
-        message: "\nWhat can we help you with today?\n Please enter the ItemID of the item you wish to purchase: ",
+        message: "Please enter the ItemID of the item you wish to purchase: ",
         validate: function(value) {
           if (isNaN(value) === false) {
             return true;
@@ -66,11 +67,12 @@ var buyer = function() {
           }, function(err, data) {
             if (err) throw err;
             if (data[0].StockQuantity < itemInventory) {
-              console.log("\nHmm, it looks like we have insufficient inventory on that item to complete your purchase.\n");
+              console.log("\nHmm, it looks like we have insufficient inventory on that item to complete your purchase. Let's try again...\n");
               start();
             } else {
                 var updateInv = data[0].StockQuantity - itemInventory;
                 var purchasePrice = data[0].Price * itemInventory;
+                purchasePrice = purchasePrice.toFixed(2);
                 connection.query("UPDATE Products SET ? WHERE ?", [{
                     StockQuantity: updateInv
                 }, {
@@ -79,6 +81,7 @@ var buyer = function() {
                     if (err) throw err;
                     console.log("\nSuccess! Your purchase is confirmed\n");
                     console.log("Total purchase price is USD$ " + purchasePrice);
+                    console.log("\nWhat else do you need to buy today?\n");
                     start();
 
             });
